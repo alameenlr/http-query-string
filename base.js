@@ -310,6 +310,78 @@ function parseValue(value, options) {
 	return value;
 }
 
+function stringifyObject(object, options, parentKey=false){
+
+    validateArrayFormatSeparator(options.arrayFormatSeparator);
+
+	const shouldFilter = key => (
+		(options.skipNull && isNullOrUndefined(object[key]))
+		|| (options.skipEmptyString && object[key] === '')
+	);
+
+	const formatter = encoderForArrayFormat(options);
+
+	const objectCopy = {};
+
+	for (const [key, value] of Object.entries(object)) {
+		if (!shouldFilter(key)) {
+			objectCopy[key] = value;
+		}
+	}
+
+	const keys = Object.keys(objectCopy);
+
+	if (options.sort !== false) {
+		keys.sort(options.sort);
+	}
+
+	return keys.map(key => {
+		const value = object[key];
+        if(parentKey){
+            key = parentKey+"["+key+"]";
+        }
+
+		if (value === undefined) {
+			return '';
+		}
+
+		if (value === null) {
+			return encode(key, options);
+		}
+        if (typeof value === "object") {
+            if (Array.isArray(value)) {
+                if (value.length === 0 && options.arrayFormat === 'bracket-separator') {
+                    return encode(key, options) + '[]';
+                }
+    
+                return value
+                    .reduce(formatter(key), [])
+                    .join('&');
+            }
+            let k = stringifyObject(value, options, key);
+            return k.join("&");
+		}
+		return encode(key, options) + '=' + encode(value, options);
+	});
+}
+
+function setObjectValueFromArray(object, path, value) {
+    var last = path.pop();
+    path.reduce((o, k) => o[k] = o[k] || {}, object)[last] = value;
+}
+
+function parseFinalValue(value){
+    if(Boolean(value) && typeof value === 'object' && !Array.isArray(value))
+        return keysSorter(value);
+    else{
+        let p = parseFloat(value);
+        if(isNaN(p))
+            return value;
+        else
+            return p % 1 === 0 ? Math.floor(p):p;
+    }
+}
+
 export function extract(input) {
 	input = removeHash(input);
 	const queryStart = input.indexOf('?');
@@ -385,7 +457,22 @@ export function parse(query, options) {
 	// eslint-disable-next-line unicorn/no-array-reduce
 	return (options.sort === true ? Object.keys(returnValue).sort() : Object.keys(returnValue).sort(options.sort)).reduce((result, key) => {
 		const value = returnValue[key];
-		result[key] = Boolean(value) && typeof value === 'object' && !Array.isArray(value) ? keysSorter(value) : value;
+        let [obcheck,key_sec] = splitOnFirst(key, '[');
+        if(key_sec){
+            key_sec = key_sec.slice(0, -1);
+            let keyParts = key_sec.split("][");
+            if(keyParts.length){
+                keyParts.unshift(obcheck);
+                setObjectValueFromArray(
+                    result,
+                    keyParts,
+                    parseFinalValue(value)
+                );
+            }
+        }
+        else{
+            result[key] = parseFinalValue(value);
+        }
 		return result;
 	}, Object.create(null));
 }
@@ -403,52 +490,8 @@ export function stringify(object, options) {
 		...options,
 	};
 
-	validateArrayFormatSeparator(options.arrayFormatSeparator);
-
-	const shouldFilter = key => (
-		(options.skipNull && isNullOrUndefined(object[key]))
-		|| (options.skipEmptyString && object[key] === '')
-	);
-
-	const formatter = encoderForArrayFormat(options);
-
-	const objectCopy = {};
-
-	for (const [key, value] of Object.entries(object)) {
-		if (!shouldFilter(key)) {
-			objectCopy[key] = value;
-		}
-	}
-
-	const keys = Object.keys(objectCopy);
-
-	if (options.sort !== false) {
-		keys.sort(options.sort);
-	}
-
-	return keys.map(key => {
-		const value = object[key];
-
-		if (value === undefined) {
-			return '';
-		}
-
-		if (value === null) {
-			return encode(key, options);
-		}
-
-		if (Array.isArray(value)) {
-			if (value.length === 0 && options.arrayFormat === 'bracket-separator') {
-				return encode(key, options) + '[]';
-			}
-
-			return value
-				.reduce(formatter(key), [])
-				.join('&');
-		}
-
-		return encode(key, options) + '=' + encode(value, options);
-	}).filter(x => x.length > 0).join('&');
+    let strings = stringifyObject(object, options);
+	return strings.join('&');
 }
 
 export function parseUrl(url, options) {

@@ -1,3 +1,3 @@
-import * as queryString from './base.js';
+import * as httpQueryString from './base.js';
 
-export default queryString;
+export default httpQueryString;

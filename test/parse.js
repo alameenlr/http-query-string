@@ -404,3 +404,7 @@ test('query strings having (:list) colon-list-separator arrays', t => {
 test('query strings having (:list) colon-list-separator arrays including null values', t => {
 	t.deepEqual(queryString.parse('bar:list=one&bar:list=two&foo', {arrayFormat: 'colon-list-separator'}), {bar: ['one', 'two'], foo: null});
 });
+
+test('query string value is input object value include objects', t => {
+	t.deepEqual(queryString.parse('a=10&b%5Bc%5D=one&b%5Bd%5D=2&b%5Be%5D%5Bf%5D=twenty&b%5Be%5D%5Bg%5D=21', {arrayFormat: 'colon-list-separator'}), {a: 10,b: {c: "one",d: 2,e: {f: "twenty",g: 21}}});
+});

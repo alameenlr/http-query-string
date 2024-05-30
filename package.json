@@ -1,14 +1,13 @@
 {
-	"name": "query-string",
-	"version": "9.0.0",
-	"description": "Parse and stringify URL query strings",
+	"name": "http-query-string",
+	"version": "1.0.1",
+	"description": "Parse HTTP Query String to JSON Object, and Build HTTP Query String from JSON Object.",
 	"license": "MIT",
-	"repository": "sindresorhus/query-string",
-	"funding": "https://github.com/sponsors/sindresorhus",
+	"repository": "alameenlr/http-query-string",
 	"author": {
-		"name": "Sindre Sorhus",
-		"email": "sindresorhus@gmail.com",
-		"url": "https://sindresorhus.com"
+		"name": "Al-Ameen LR",
+		"email": "alameenlr@outlook.com",
+		"url": "https://github.com/alameenlr"
 	},
 	"type": "module",
 	"exports": {
@@ -31,6 +30,9 @@
 	],
 	"keywords": [
 		"browser",
+        "http-query-string",
+        "http_build_query",
+        "http_parse_query",
 		"querystring",
 		"query",
 		"string",
@@ -47,10 +49,10 @@
 	],
 	"dependencies": {
 		"decode-uri-component": "^0.4.1",
-		"filter-obj": "^5.1.0",
+		"filter-obj": "^6.1.0",
 		"split-on-first": "^3.0.0"
 	},
-	"devDependencies": {
+    "devDependencies": {
 		"ava": "^6.1.1",
 		"benchmark": "^2.1.4",
 		"deep-equal": "^2.2.3",

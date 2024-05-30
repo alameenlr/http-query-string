@@ -431,3 +431,22 @@ test('array stringify representation with (:list) colon-list-separator with null
 		arrayFormat: 'colon-list-separator',
 	}), 'bar:list=one&bar:list=&foo');
 });
+
+test('stringify Objects', t => {
+	t.is(queryString.stringify(
+        {
+            a: 10,
+            b: {
+                c: "one",
+                d: 2,
+                e: {
+                    f: "twenty",
+                    g: 21
+                }
+            },
+        },
+        {
+            arrayFormat: 'colon-list-separator',
+        }
+    ), 'a=10&b%5Bc%5D=one&b%5Bd%5D=2&b%5Be%5D%5Bf%5D=twenty&b%5Be%5D%5Bg%5D=21');
+});

@@ -1,7 +1,7 @@
 import Benchmark from 'benchmark';
-import queryString from './index.js';
+import httpQueryString from './index.js';
 
-const {stringify, stringifyUrl} = queryString;
+const {stringify, stringifyUrl} = httpQueryString;
 const suite = new Benchmark.Suite();
 
 // Fixtures
@@ -24,7 +24,7 @@ const TEST_URL = stringifyUrl({url: TEST_HOST, query: TEST_OBJECT});
 
 // Creates a test case and adds it to the suite
 const defineTestCase = (methodName, input, options) => {
-	const function_ = queryString[methodName];
+	const function_ = httpQueryString[methodName];
 	const label = options ? ` (${stringify(options)})` : '';
 
 	suite.add(methodName + label, () => function_(input, options || {}));
